@@ -12,17 +12,19 @@ use SocialiteProviders\Manager\OAuth1\User;
  */
 class Server extends BaseServer
 {
-    private const TITLE_PARAM = 'title';
     private const SERVICES_MEDIAWIKI_URL = 'services.mediawiki.url';
+
+    /**
+     * @var string Needed Title Param for MediaWiki
+     */
+    protected $title;
 
     /**
      * {@inheritDoc}
      */
     public function urlTemporaryCredentials()
     {
-        $this->parameters = [
-            self::TITLE_PARAM => 'Special:OAuth/initiate',
-        ];
+        $this->title = 'Special:OAuth/initiate';
 
         return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/initiate';
     }
@@ -32,9 +34,7 @@ class Server extends BaseServer
      */
     public function urlAuthorization()
     {
-        $this->parameters = [
-            self::TITLE_PARAM => 'Special:OAuth/authenticate',
-        ];
+        $this->title = 'Special:OAuth/authenticate';
 
         return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/authenticate';
     }
@@ -44,9 +44,7 @@ class Server extends BaseServer
      */
     public function urlTokenCredentials()
     {
-        $this->parameters = [
-            self::TITLE_PARAM => 'Special:OAuth/token',
-        ];
+        $this->title = 'Special:OAuth/token';
 
         return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/token';
     }
@@ -56,9 +54,7 @@ class Server extends BaseServer
      */
     public function urlUserDetails()
     {
-        $this->parameters = [
-            self::TITLE_PARAM => 'Special:OAuth/identify',
-        ];
+        $this->title = 'Special:OAuth/identify';
 
         return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/identify';
     }
@@ -78,7 +74,7 @@ class Server extends BaseServer
             'groups' => $data->groups,
             'rights' => $data->rights,
             'grants' => optional($data)->grants,
-            'editcount' => $data->editcount
+            'editcount' => $data->editcount,
         ];
 
         return $user;
@@ -162,6 +158,43 @@ class Server extends BaseServer
     }
 
     /**
+     * Overwritten to include call to additionalProtocolParameters
+     *
+     * Generate the OAuth protocol header for a temporary credentials
+     * request, based on the URI.
+     *
+     * @param string $uri
+     *
+     * @return string
+     */
+    protected function temporaryCredentialsProtocolHeader($uri)
+    {
+        $parameters = array_merge(
+            $this->baseProtocolParameters(),
+            [
+                'oauth_callback' => $this->clientCredentials->getCallbackUri(),
+            ],
+            $this->additionalProtocolParameters()
+        );
+
+        $parameters['oauth_signature'] = $this->signature->sign($uri, $parameters, 'POST');
+
+        return $this->normalizeProtocolParameters($parameters);
+    }
+
+    /**
+     * The additional Params
+     *
+     * @return array
+     */
+    protected function additionalProtocolParameters()
+    {
+        return [
+            'title' => $this->title,
+        ];
+    }
+
+    /**
      * Validate the header. MWOAuth always returns alg "HS256".
      *
      * @param string $header
@@ -215,7 +248,9 @@ class Server extends BaseServer
         }
 
         if ($payload->iss !== config(self::SERVICES_MEDIAWIKI_URL)) {
-            throw new \InvalidArgumentException("Got Issuer {$payload->iss} expected ".config(self::SERVICES_MEDIAWIKI_URL));
+            throw new \InvalidArgumentException(
+                "Got Issuer {$payload->iss} expected ".config(self::SERVICES_MEDIAWIKI_URL)
+            );
         }
 
         return $payload;
