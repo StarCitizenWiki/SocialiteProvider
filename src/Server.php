@@ -70,12 +70,15 @@ class Server extends BaseServer
     {
         $user = new User();
         $user->id = $data->sub;
+        $user->email = optional($data)->email;
         $user->username = $data->username;
         $user->blocked = $data->blocked;
 
         $user->extra = [
             'groups' => $data->groups,
             'rights' => $data->rights,
+            'grants' => optional($data)->grants,
+            'editcount' => $data->editcount
         ];
 
         return $user;
@@ -209,6 +212,10 @@ class Server extends BaseServer
 
         if (!is_object($payload)) {
             throw new \InvalidArgumentException("Invalid Payload");
+        }
+
+        if ($payload->iss !== config(self::SERVICES_MEDIAWIKI_URL)) {
+            throw new \InvalidArgumentException("Got Issuer {$payload->iss} expected ".config(self::SERVICES_MEDIAWIKI_URL));
         }
 
         return $payload;
