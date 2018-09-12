@@ -93,7 +93,7 @@ class Server extends BaseServer
      */
     public function userEmail($data, TokenCredentials $tokenCredentials)
     {
-        return null;
+        return $data['email'] ?? null;
     }
 
     /**

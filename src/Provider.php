@@ -34,6 +34,7 @@ class Provider extends AbstractProvider
                 'id' => $user->id,
                 'username' => $user->username,
                 'blocked' => $user->blocked,
+                'email' => $user->email,
             ]
         )->setToken($token->getIdentifier(), $token->getSecret());
     }
