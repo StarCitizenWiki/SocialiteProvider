@@ -36,7 +36,7 @@ class Server extends BaseServer
     {
         $this->title = 'Special:OAuth/authenticate';
 
-        return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/authenticate';
+        return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/authorize';
     }
 
     /**
