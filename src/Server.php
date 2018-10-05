@@ -13,6 +13,10 @@ use SocialiteProviders\Manager\OAuth1\User;
 class Server extends BaseServer
 {
     private const SERVICES_MEDIAWIKI_URL = 'services.mediawiki.url';
+    private const SERVICES_MEDIAWIKI_AUTH_TYPE = 'service.mediawiki.auth_type';
+
+    const AUTH_TYPE_AUTHORIZE = 'authorize';
+    const AUTH_TYPE_AUTHENTICATE = 'authenticate';
 
     /**
      * @var string Needed Title Param for MediaWiki
@@ -26,7 +30,7 @@ class Server extends BaseServer
     {
         $this->title = 'Special:OAuth/initiate';
 
-        return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/initiate';
+        return sprintf('%s/%s', self::SERVICES_MEDIAWIKI_URL, $this->title);
     }
 
     /**
@@ -34,9 +38,15 @@ class Server extends BaseServer
      */
     public function urlAuthorization()
     {
-        $this->title = 'Special:OAuth/authenticate';
+        if (config(self::SERVICES_MEDIAWIKI_AUTH_TYPE, self::AUTH_TYPE_AUTHENTICATE) === self::AUTH_TYPE_AUTHENTICATE) {
+            $authType = self::AUTH_TYPE_AUTHENTICATE;
+        } else {
+            $authType = self::AUTH_TYPE_AUTHORIZE;
+        }
 
-        return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/authorize';
+        $this->title = "Special:OAuth/{$authType}";
+
+        return sprintf('%s/%s', self::SERVICES_MEDIAWIKI_URL, $this->title);
     }
 
     /**
@@ -46,7 +56,7 @@ class Server extends BaseServer
     {
         $this->title = 'Special:OAuth/token';
 
-        return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/token';
+        return sprintf('%s/%s', self::SERVICES_MEDIAWIKI_URL, $this->title);
     }
 
     /**
@@ -56,7 +66,7 @@ class Server extends BaseServer
     {
         $this->title = 'Special:OAuth/identify';
 
-        return config(self::SERVICES_MEDIAWIKI_URL).'/Special:OAuth/identify';
+        return sprintf('%s/%s', self::SERVICES_MEDIAWIKI_URL, $this->title);
     }
 
     /**
