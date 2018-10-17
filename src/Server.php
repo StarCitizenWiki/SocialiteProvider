@@ -30,7 +30,7 @@ class Server extends BaseServer
     {
         $this->title = 'Special:OAuth/initiate';
 
-        return sprintf('%s/%s', self::SERVICES_MEDIAWIKI_URL, $this->title);
+        return sprintf('%s/%s', config(self::SERVICES_MEDIAWIKI_URL), $this->title);
     }
 
     /**
@@ -46,7 +46,7 @@ class Server extends BaseServer
 
         $this->title = "Special:OAuth/{$authType}";
 
-        return sprintf('%s/%s', self::SERVICES_MEDIAWIKI_URL, $this->title);
+        return sprintf('%s/%s', config(self::SERVICES_MEDIAWIKI_URL), $this->title);
     }
 
     /**
@@ -56,7 +56,7 @@ class Server extends BaseServer
     {
         $this->title = 'Special:OAuth/token';
 
-        return sprintf('%s/%s', self::SERVICES_MEDIAWIKI_URL, $this->title);
+        return sprintf('%s/%s', config(self::SERVICES_MEDIAWIKI_URL), $this->title);
     }
 
     /**
@@ -66,7 +66,7 @@ class Server extends BaseServer
     {
         $this->title = 'Special:OAuth/identify';
 
-        return sprintf('%s/%s', self::SERVICES_MEDIAWIKI_URL, $this->title);
+        return sprintf('%s/%s', config(self::SERVICES_MEDIAWIKI_URL), $this->title);
     }
 
     /**
@@ -257,9 +257,9 @@ class Server extends BaseServer
             throw new \InvalidArgumentException("Invalid Payload");
         }
 
-        if ($payload->iss !== config(self::SERVICES_MEDIAWIKI_URL)) {
+        if ($payload->iss !== config(config(self::SERVICES_MEDIAWIKI_URL))) {
             throw new \InvalidArgumentException(
-                "Got Issuer {$payload->iss} expected ".config(self::SERVICES_MEDIAWIKI_URL)
+                "Got Issuer {$payload->iss} expected ".config(config(self::SERVICES_MEDIAWIKI_URL))
             );
         }
 
