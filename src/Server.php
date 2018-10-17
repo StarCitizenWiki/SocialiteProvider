@@ -257,9 +257,9 @@ class Server extends BaseServer
             throw new \InvalidArgumentException("Invalid Payload");
         }
 
-        if ($payload->iss !== config(config(self::SERVICES_MEDIAWIKI_URL))) {
+        if ($payload->iss !== config(self::SERVICES_MEDIAWIKI_URL)) {
             throw new \InvalidArgumentException(
-                "Got Issuer {$payload->iss} expected ".config(config(self::SERVICES_MEDIAWIKI_URL))
+                "Got Issuer {$payload->iss} expected ".config(self::SERVICES_MEDIAWIKI_URL)
             );
         }
 
